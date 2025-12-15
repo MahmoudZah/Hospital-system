@@ -6,6 +6,9 @@ public class HospitalSystem {
     private ArrayList<Doctor> doctors;
     private ArrayList<Patient> patients;
     private ArrayList<Appointment> appointments;
+    private ArrayList<String> usedNationalIds = new ArrayList<>();
+    private ArrayList<String> usedContacts = new ArrayList<>();
+    private ArrayList<Integer> usedMedicalHistoryIds = new ArrayList<>();
 
     public HospitalSystem() {
         this.doctors = new ArrayList<>();
@@ -13,13 +16,42 @@ public class HospitalSystem {
         this.appointments = new ArrayList<>();
     }
 
-    public void addDoctor(Doctor doctor) {
-        this.doctors.add(doctor);
+public boolean addDoctor(Doctor doctor) {
+
+    if (usedNationalIds.contains(doctor.getNationalId())) {
+        return false; // national id duplicate
     }
 
-    public void addPatient(Patient patient) {
-        this.patients.add(patient);
+    if (usedContacts.contains(doctor.getContactInfo())) {
+        throw new IllegalArgumentException("Contact number already exists");
     }
+
+    usedNationalIds.add(doctor.getNationalId());
+    usedContacts.add(doctor.getContactInfo());
+    doctors.add(doctor);
+    return true;
+}
+
+
+
+
+public boolean addPatient(Patient patient) {
+
+    if (usedNationalIds.contains(patient.getNationalId()) ||
+        usedContacts.contains(patient.getContactInfo()) ||
+        usedMedicalHistoryIds.contains(patient.getMedicalHistoryId())) {
+        return false;
+    }
+
+    usedNationalIds.add(patient.getNationalId());
+    usedContacts.add(patient.getContactInfo());
+    usedMedicalHistoryIds.add(patient.getMedicalHistoryId());
+    patients.add(patient);
+    return true;
+}
+
+
+
 
     public void addAppointment(Appointment appointment) {
         this.appointments.add(appointment);
@@ -64,30 +96,70 @@ public class HospitalSystem {
         return null;
     }
 
-    public Doctor editDoctor(int id, String name, String contactInfo,
-                             String specialization, String timeSlot) {
-        Doctor doctor = getDoctor(id);
-        if (doctor != null) {
-            doctor.setName(name);
-            doctor.setContactInfo(contactInfo);
-            doctor.setSpecialization(specialization);
-            doctor.setTimeSlot(timeSlot);
-            return doctor;
-        }
-        return null;
+public boolean editDoctor(int id, String name, String contactInfo,
+                          String specialization, String timeSlot) {
+
+    Doctor doctor = getDoctor(id);
+    if (doctor == null) {
+        return false;
     }
 
-    public Patient editPatient(int id, String name, String contactInfo,
-                               int medicalHistoryId) {
-        Patient patient = getPatient(id);
-        if (patient != null) {
-            patient.setName(name);
-            patient.setContactInfo(contactInfo);
-            patient.setMedicalHistoryId(medicalHistoryId);
-            return patient;
+    // check contact only if changed
+    if (!doctor.getContactInfo().equals(contactInfo)) {
+        if (isContactUsed(contactInfo)) {
+            return false; 
         }
-        return null;
+        usedContacts.remove(doctor.getContactInfo());
+        usedContacts.add(contactInfo);
+        doctor.setContactInfo(contactInfo);
     }
+
+    doctor.setName(name);
+    doctor.setSpecialization(specialization);
+    doctor.setTimeSlot(timeSlot);
+
+    return true; 
+}
+
+
+ public boolean editPatient(int id, String name, String contactInfo,
+                           int medicalHistoryId) {
+
+    Patient patient = getPatient(id);
+    if (patient == null) {
+        return false;
+    }
+
+    // ===== Contact validation =====
+    if (!patient.getContactInfo().equals(contactInfo)) {
+        if (isContactUsed(contactInfo)) {
+            return false;
+        }
+        usedContacts.remove(patient.getContactInfo());
+        usedContacts.add(contactInfo);
+        patient.setContactInfo(contactInfo);
+    }
+
+    // ===== Medical History ID validation =====
+    if (patient.getMedicalHistoryId() != medicalHistoryId) {
+
+        if (medicalHistoryId < 10000 || medicalHistoryId > 99999) {
+            return false;
+        }
+
+        if (usedMedicalHistoryIds.contains(medicalHistoryId)) {
+            return false;
+        }
+
+       usedMedicalHistoryIds.remove(Integer.valueOf(patient.getMedicalHistoryId()));
+        usedMedicalHistoryIds.add(medicalHistoryId);
+        patient.setMedicalHistoryId(medicalHistoryId);
+    }
+
+    patient.setName(name);
+    return true;
+}
+
 
     public Appointment editAppointment(int id, String date, Boolean status) {
         Appointment appointment = getAppointment(id);
@@ -236,4 +308,73 @@ public class HospitalSystem {
     public ArrayList<Appointment> getAppointments() {
         return appointments;
     }
+public boolean isNationalIdUsed(String nationalId) {
+    for (Doctor d : doctors)
+        if (d.getNationalId().equals(nationalId))
+            return true;
+
+    for (Patient p : patients)
+        if (p.getNationalId().equals(nationalId))
+            return true;
+
+    return false;
+}
+
+public boolean isContactUsed(String contact) {
+    for (Doctor d : doctors)
+        if (d.getContactInfo().equals(contact))
+            return true;
+
+    for (Patient p : patients)
+        if (p.getContactInfo().equals(contact))
+            return true;
+
+    return false;
+}
+public boolean isMedicalHistoryIdUsed(int id) {
+    return usedMedicalHistoryIds.contains(id);
+}
+public String bookAppointmentById(int appointmentId, int patientId) {
+
+    Appointment appointment = getAppointment(appointmentId);
+    Patient patient = getPatient(patientId);
+
+    if (appointment == null || patient == null) {
+        return "INVALID_DATA";
+    }
+
+    if (appointment.getStatus()) {
+        return "ALREADY_BOOKED";
+    }
+
+    // prevent double booking (same patient, same date & time)
+    for (Appointment apt : appointments) {
+        if (apt.getPatientId() != null
+            && apt.getPatientId() == patientId
+            && apt.getDate().trim().equals(appointment.getDate().trim())
+            && apt.getTime().trim().equals(appointment.getTime().trim())) {
+
+            return "PATIENT_BUSY";
+        }
+    }
+
+    appointment.setPatientId(patientId);
+    return "SUCCESS";
+}
+
+public boolean cancelAppointmentById(int appointmentId) {
+
+    Appointment appointment = getAppointment(appointmentId);
+
+    if (appointment == null || !appointment.getStatus()) {
+        return false;
+    }
+
+    appointment.setPatientId(null);
+    return true;
+}
+
+
+
+
 }
