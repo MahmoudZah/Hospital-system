@@ -6,12 +6,15 @@ public abstract class Person {
     private String nationalId;
     private String contactInfo;
 
-    public Person(String name, String contactInfo, String nationalId, int id) {
-        this.name = name;
-        this.contactInfo = contactInfo;
-        this.nationalId = nationalId;
-        this.id = id;
-    }
+public Person(String name, String contactInfo, String nationalId, int id) {
+
+
+    this.name = name;
+    this.contactInfo = contactInfo;
+    this.nationalId = nationalId;
+    this.id = id;
+}
+
 
     public String getName() {
         return name;
@@ -42,4 +45,7 @@ public abstract class Person {
     }
     
     public abstract String getRole();
+    
+
+
 }
