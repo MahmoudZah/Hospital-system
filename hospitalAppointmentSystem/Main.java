@@ -54,100 +54,263 @@ public class Main {
         }
 
         switch (choice) {
-            case 1: {
-                System.out.print("Enter Doctor Name: ");
-                String name = scanner.nextLine();
-                System.out.print("Enter Doctor Contact Info: ");
-                String contactInfo = scanner.nextLine();
-                System.out.print("Enter Doctor Specialization: ");
-                String specialization = scanner.nextLine();
-                System.out.print("Enter Doctor National ID: ");
-                String nationalId = scanner.nextLine();
-                System.out.print("Enter Doctor Time Slot (e.g. 09:00-17:00): ");
-                String timeSlot = scanner.nextLine();
-                Doctor doctor = new Doctor(name, contactInfo, nationalId, specialization, timeSlot);
-                hospitalSystem.addDoctor(doctor);
-                System.out.println("Doctor added successfully!");
-                break;
-            }
+  case 1: {
+
+    System.out.print("Enter Doctor Name: ");
+    String name = scanner.nextLine();
+
+    // ===== Contact Info =====
+    String contactInfo;
+    while (true) {
+        System.out.print("Enter Doctor Contact Info (11 digits): ");
+        contactInfo = scanner.nextLine();
+
+        if (!contactInfo.matches("\\d{11}")) {
+            System.out.println("Invalid contact number (must be 11 digits).");
+            continue;
+        }
+
+        if (hospitalSystem.isContactUsed(contactInfo)) {
+            System.out.println("Contact number already exists. Re-enter.");
+            continue;
+        }
+        break;
+    }
+
+    System.out.print("Enter Doctor Specialization: ");
+    String specialization = scanner.nextLine();
+
+    System.out.print("Enter Doctor Time Slot (e.g. 09:00-17:00): ");
+    String timeSlot = scanner.nextLine();
+
+    // ===== National ID (AFTER time slot زي ما انت عايز) =====
+    String nationalId;
+    while (true) {
+        System.out.print("Enter Doctor National ID (7 digits): ");
+        nationalId = scanner.nextLine();
+
+        if (!nationalId.matches("\\d{7}")) {
+            System.out.println("Invalid National ID (must be 7 digits). Re-enter.");
+            continue;
+        }
+
+        if (hospitalSystem.isNationalIdUsed(nationalId)) {
+            System.out.println("National ID already exists. Re-enter.");
+            continue;
+        }
+        break;
+    }
+
+    Doctor doctor = new Doctor(name, contactInfo, nationalId, specialization, timeSlot);
+    hospitalSystem.addDoctor(doctor);
+    System.out.println("Doctor added successfully!");
+
+    break;
+}
+
+            
             case 2: {
-                System.out.print("Enter Patient Name: ");
-                String name = scanner.nextLine();
-                System.out.print("Enter Patient Contact Info: ");
-                String contactInfo = scanner.nextLine();
-                System.out.print("Enter Patient National ID: ");
-                String nationalId = scanner.nextLine();
-                System.out.print("Enter Patient Medical History ID: ");
-                int medicalHistoryId = readInt();
-                if (medicalHistoryId == -1) {
-                    System.out.println("Invalid Medical History ID!");
-                    break;
-                }
-                Patient patient = new Patient(name, contactInfo, nationalId, medicalHistoryId);
-                hospitalSystem.addPatient(patient);
-                System.out.println("Patient added successfully!");
-                break;
-            }
-            case 3: {
-                ArrayList<Doctor> doctors = hospitalSystem.getDoctors();
-                if (doctors.size() == 0) {
-                    System.out.println("No doctors found!");
-                    break;
-                }
-                System.out.println("Available Doctors:");
-                for (Doctor doctor : doctors) {
-                    System.out.println(doctor.getId() + ". " + doctor.getName() + " - " + doctor.getSpecialization());
-                }
-                System.out.print("Choose a doctor ID to edit: ");
-                int doctorId = readInt();
-                Doctor doctor = hospitalSystem.getDoctor(doctorId);
-                if (doctor == null) {
-                    System.out.println("Doctor not found!");
-                    break;
-                }
-                System.out.print("Enter new Doctor Name (current: " + doctor.getName() + "): ");
-                String name = scanner.nextLine();
-                System.out.print("Enter new Doctor Contact Info (current: " + doctor.getContactInfo() + "): ");
-                String contactInfo = scanner.nextLine();
-                System.out.print("Enter new Doctor Specialization (current: " + doctor.getSpecialization() + "): ");
-                String specialization = scanner.nextLine();
-                System.out.print("Enter new Doctor Time Slot (current: " + doctor.getTimeSlot() + "): ");
-                String timeSlot = scanner.nextLine();
-                hospitalSystem.editDoctor(doctorId, name, contactInfo, specialization, timeSlot);
-                System.out.println("Doctor updated successfully!");
-                break;
-            }
-            case 4: {
-                ArrayList<Patient> patients = hospitalSystem.getPatients();
-                if (patients.size() == 0) {
-                    System.out.println("No patients found!");
-                    break;
-                }
-                System.out.println("Available Patients:");
-                for (Patient patient : patients) {
-                    System.out.println(patient.getId() + ". " + patient.getName());
-                }
-                System.out.print("Choose a patient ID to edit: ");
-                int patientId = readInt();
-                Patient patient = hospitalSystem.getPatient(patientId);
-                if (patient == null) {
-                    System.out.println("Patient not found!");
-                    break;
-                }
-                System.out.print("Enter new Patient Name (current: " + patient.getName() + "): ");
-                String name = scanner.nextLine();
-                System.out.print("Enter new Patient Contact Info (current: " + patient.getContactInfo() + "): ");
-                String contactInfo = scanner.nextLine();
-                System.out.print("Enter new Patient Medical History ID (current: " + patient.getMedicalHistoryId() + "): ");
-                int medicalHistoryId = readInt();
-                if (medicalHistoryId == -1) {
-                    System.out.println("Invalid Medical History ID!");
-                    break;
-                }
-                hospitalSystem.editPatient(patientId, name, contactInfo, medicalHistoryId);
-                System.out.println("Patient updated successfully!");
-                break;
-            }
+
+    System.out.print("Enter Patient Name: ");
+    String name = scanner.nextLine();
+
+    // ===== Contact Info =====
+    String contactInfo;
+    while (true) {
+        System.out.print("Enter Patient Contact Info (11 digits): ");
+        contactInfo = scanner.nextLine();
+
+        if (!contactInfo.matches("\\d{11}")) {
+            System.out.println("Contact must be exactly 11 digits.");
+            continue;
+        }
+
+        if (hospitalSystem.isContactUsed(contactInfo)) {
+            System.out.println("Contact already exists, please re-enter.");
+            continue;
+        }
+        break;
+    }
+
+    // ===== National ID =====
+    String nationalId;
+    while (true) {
+        System.out.print("Enter Patient National ID (7 digits): ");
+        nationalId = scanner.nextLine();
+
+        if (!nationalId.matches("\\d{7}")) {
+            System.out.println("National ID must be exactly 7 digits.");
+            continue;
+        }
+
+        if (hospitalSystem.isNationalIdUsed(nationalId)) {
+            System.out.println("National ID already exists, please re-enter.");
+            continue;
+        }
+        break;
+    }
+
+    // ===== Medical History ID =====
+    int medicalHistoryId;
+    while (true) {
+        System.out.print("Enter Patient Medical History ID (5 digits): ");
+        medicalHistoryId = readInt();
+
+        if (medicalHistoryId < 10000 || medicalHistoryId > 99999) {
+            System.out.println("Medical History ID must be exactly 5 digits.");
+            continue;
+        }
+
+        if (hospitalSystem.isMedicalHistoryIdUsed(medicalHistoryId)) {
+            System.out.println("Medical History ID already exists. Re-enter.");
+            continue;
+        }
+        break;
+    }
+
+    Patient patient = new Patient(name, contactInfo, nationalId, medicalHistoryId);
+    hospitalSystem.addPatient(patient);
+    System.out.println("Patient added successfully!");
+
+    break;
+}
+
+         case 3: {
+    ArrayList<Doctor> doctors = hospitalSystem.getDoctors();
+    if (doctors.size() == 0) {
+        System.out.println("No doctors found!");
+        break;
+    }
+
+    System.out.println("Available Doctors:");
+    for (Doctor doctor : doctors) {
+        System.out.println(doctor.getId() + ". " + doctor.getName() + " - " + doctor.getSpecialization());
+    }
+
+    System.out.print("Choose a doctor ID to edit: ");
+    int doctorId = readInt();
+    Doctor doctor = hospitalSystem.getDoctor(doctorId);
+
+    if (doctor == null) {
+        System.out.println("Doctor not found!");
+        break;
+    }
+
+    // ===== Name =====
+    System.out.print("Enter new Doctor Name (current: " + doctor.getName() + "): ");
+    String name = scanner.nextLine();
+
+    // ===== Contact (with immediate validation) =====
+    String contactInfo;
+    while (true) {
+        System.out.print("Enter new Doctor Contact Info (current: " + doctor.getContactInfo() + "): ");
+        contactInfo = scanner.nextLine();
+
+        boolean ok = hospitalSystem.editDoctor(
+                doctorId,
+                name,
+                contactInfo,
+                doctor.getSpecialization(),
+                doctor.getTimeSlot()
+        );
+
+        if (!ok) {
+            System.out.println("Contact already exists. Please re-enter.");
+            continue;
+        }
+        break;
+    }
+
+    // ===== Specialization =====
+    System.out.print("Enter new Doctor Specialization (current: " + doctor.getSpecialization() + "): ");
+    String specialization = scanner.nextLine();
+
+    // ===== Time Slot =====
+    System.out.print("Enter new Doctor Time Slot (current: " + doctor.getTimeSlot() + "): ");
+    String timeSlot = scanner.nextLine();
+
+    // ===== Final update =====
+    hospitalSystem.editDoctor(
+            doctorId,
+            name,
+            contactInfo,
+            specialization,
+            timeSlot
+    );
+
+    System.out.println("Doctor updated successfully!");
+    break;
+}
+
+           case 4: {
+    ArrayList<Patient> patients = hospitalSystem.getPatients();
+    if (patients.size() == 0) {
+        System.out.println("No patients found!");
+        break;
+    }
+
+    System.out.println("Available Patients:");
+    for (Patient p : patients) {
+        System.out.println(p.getId() + ". " + p.getName());
+    }
+
+    System.out.print("Choose a patient ID to edit: ");
+    int patientId = readInt();
+    Patient patient = hospitalSystem.getPatient(patientId);
+
+    if (patient == null) {
+        System.out.println("Patient not found!");
+        break;
+    }
+
+    // ===== Name =====
+    System.out.print("Enter new Patient Name (current: " + patient.getName() + "): ");
+    String name = scanner.nextLine();
+
+    // ===== Contact (immediate validation) =====
+    String contactInfo;
+    while (true) {
+        System.out.print("Enter new Patient Contact Info (current: " + patient.getContactInfo() + "): ");
+        contactInfo = scanner.nextLine();
+
+        boolean ok = hospitalSystem.editPatient(
+                patientId,
+                name,
+                contactInfo,
+                patient.getMedicalHistoryId()
+        );
+
+        if (!ok) {
+            System.out.println("Contact already exists. Please re-enter.");
+            continue;
+        }
+        break;
+    }
+
+    // ===== Medical History ID (immediate validation) =====
+    int medicalHistoryId;
+    while (true) {
+        System.out.print("Enter new Medical History ID (current: " + patient.getMedicalHistoryId() + "): ");
+        medicalHistoryId = readInt();
+
+        boolean ok = hospitalSystem.editPatient(
+                patientId,
+                name,
+                contactInfo,
+                medicalHistoryId
+        );
+
+        if (!ok) {
+            System.out.println("Invalid or duplicate Medical History ID. Please re-enter.");
+            continue;
+        }
+        break;
+    }
+
+    System.out.println("Patient updated successfully!");
+    break;
+}
+
             case 5: {
                 ArrayList<Doctor> doctors = hospitalSystem.getDoctors();
                 if (doctors.size() == 0) {
@@ -166,99 +329,99 @@ public class Main {
                     break;
                 }
                 System.out.print("Enter Appointments Date (e.g. 2025-01-15): ");
-                String date = scanner.nextLine();
+                String date = scanner.nextLine().trim();
                 hospitalSystem.generateAvailableAppointments(doctor, date);
                 System.out.println("Available appointments generated successfully!");
                 break;
             }
-            case 6: {
-                ArrayList<Doctor> doctors = hospitalSystem.getDoctors();
-                if (doctors.size() == 0) {
-                    System.out.println("No doctors found!");
-                    break;
-                }
-                System.out.println("Available Doctors:");
-                for (Doctor doctor : doctors) {
-                    System.out.println(doctor.getId() + ". " + doctor.getName() + " - " + doctor.getSpecialization());
-                }
-                System.out.print("Choose a doctor ID: ");
-                int doctorId = readInt();
-                Doctor doctor = hospitalSystem.getDoctor(doctorId);
-                if (doctor == null) {
-                    System.out.println("Doctor not found!");
-                    break;
-                }
-                ArrayList<Appointment> appointments = hospitalSystem.getAvailableAppointmentsByDoctor(doctor);
-                if (appointments.size() == 0) {
-                    System.out.println("No available appointments for this doctor!");
-                    break;
-                }
-                System.out.println("Available Appointments:");
-                for (Appointment appointment : appointments) {
-                    System.out.println(appointment.getId() + ". Date: " + appointment.getDate() + " Time: " + appointment.getTime());
-                }
-                System.out.print("Enter Appointment Date: ");
-                String date = scanner.nextLine();
-                System.out.print("Enter Appointment Time: ");
-                String time = scanner.nextLine();
-                
-                ArrayList<Patient> patients = hospitalSystem.getPatients();
-                if (patients.size() == 0) {
-                    System.out.println("No patients found!");
-                    break;
-                }
-                System.out.println("Available Patients:");
-                for (Patient patient : patients) {
-                    System.out.println(patient.getId() + ". " + patient.getName());
-                }
-                System.out.print("Choose a patient ID: ");
-                int patientId = readInt();
-                
-                if (hospitalSystem.bookAppointment(doctorId, date, time, patientId)) {
-                    System.out.println("Appointment booked successfully!");
-                } else {
-                    System.out.println("Failed to book appointment. It may already be booked.");
-                }
-                break;
-            }
-            case 7: {
-                ArrayList<Doctor> doctors = hospitalSystem.getDoctors();
-                if (doctors.size() == 0) {
-                    System.out.println("No doctors found!");
-                    break;
-                }
-                System.out.println("Available Doctors:");
-                for (Doctor doctor : doctors) {
-                    System.out.println(doctor.getId() + ". " + doctor.getName() + " - " + doctor.getSpecialization());
-                }
-                System.out.print("Choose a doctor ID: ");
-                int doctorId = readInt();
-                Doctor doctor = hospitalSystem.getDoctor(doctorId);
-                if (doctor == null) {
-                    System.out.println("Doctor not found!");
-                    break;
-                }
-                ArrayList<Appointment> appointments = hospitalSystem.getBookedAppointmentsByDoctor(doctor);
-                if (appointments.size() == 0) {
-                    System.out.println("No booked appointments for this doctor!");
-                    break;
-                }
-                System.out.println("Booked Appointments:");
-                for (Appointment appointment : appointments) {
-                    System.out.println("Date: " + appointment.getDate() + " Time: " + appointment.getTime());
-                }
-                System.out.print("Enter Appointment Date to cancel: ");
-                String date = scanner.nextLine();
-                System.out.print("Enter Appointment Time to cancel: ");
-                String time = scanner.nextLine();
-                
-                if (hospitalSystem.cancelAppointment(doctorId, date, time)) {
-                    System.out.println("Appointment cancelled successfully!");
-                } else {
-                    System.out.println("Failed to cancel appointment.");
-                }
-                break;
-            }
+           case 6: {
+    ArrayList<Appointment> appointments = hospitalSystem.getAppointments();
+    if (appointments.size() == 0) {
+        System.out.println("No appointments found!");
+        break;
+    }
+
+    System.out.println("Available Appointments:");
+    for (Appointment apt : appointments) {
+        if (!apt.getStatus()) {
+            Doctor d = hospitalSystem.getDoctor(apt.getDoctorId());
+            System.out.println(
+                apt.getId() + ". Dr." + d.getName()
+                + " | " + apt.getDate()
+                + " | " + apt.getTime()
+            );
+        }
+    }
+
+    System.out.print("Enter Appointment ID to book: ");
+    int appointmentId = readInt();
+
+    ArrayList<Patient> patients = hospitalSystem.getPatients();
+    if (patients.size() == 0) {
+        System.out.println("No patients found!");
+        break;
+    }
+
+    System.out.println("Available Patients:");
+    for (Patient p : patients) {
+        System.out.println(p.getId() + ". " + p.getName());
+    }
+
+    System.out.print("Enter Patient ID: ");
+    int patientId = readInt();
+
+  String result = hospitalSystem.bookAppointmentById(appointmentId, patientId);
+
+switch (result) {
+    case "SUCCESS":
+        System.out.println("Appointment booked successfully!");
+        break;
+
+    case "PATIENT_BUSY":
+        System.out.println("Failed to book appointment: patient already has an appointment at the same time.");
+        break;
+
+    case "ALREADY_BOOKED":
+        System.out.println("Failed to book appointment: this slot is already booked.");
+        break;
+
+    default:
+        System.out.println("Failed to book appointment: invalid data.");
+}
+break;
+
+}
+case 7: {
+    ArrayList<Appointment> appointments = hospitalSystem.getAppointments();
+    if (appointments.size() == 0) {
+        System.out.println("No appointments found!");
+        break;
+    }
+
+    System.out.println("Booked Appointments:");
+    for (Appointment apt : appointments) {
+        if (apt.getStatus()) {
+            Doctor d = hospitalSystem.getDoctor(apt.getDoctorId());
+            System.out.println(
+                apt.getId() + ". Dr." + d.getName()
+                + " | " + apt.getDate()
+                + " | " + apt.getTime()
+            );
+        }
+    }
+
+    System.out.print("Enter Appointment ID to cancel: ");
+    int appointmentId = readInt();
+
+    if (hospitalSystem.cancelAppointmentById(appointmentId)) {
+        System.out.println("Appointment cancelled successfully!");
+    } else {
+        System.out.println("Failed to cancel appointment.");
+    }
+    break;
+}
+
+           
             case 8: {
                 ArrayList<Doctor> doctors = hospitalSystem.getDoctors();
                 if (doctors.size() == 0) {
