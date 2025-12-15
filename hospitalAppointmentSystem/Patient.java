@@ -16,7 +16,11 @@ public class Patient extends Person {
     }
 
     public void setMedicalHistoryId(int medicalHistoryId) {
-        this.medicalHistoryId = medicalHistoryId;
+        if (medicalHistoryId < 10000 || medicalHistoryId > 99999) {
+    throw new IllegalArgumentException("Medical History ID must be exactly 5 digits");
+     }
+    this.medicalHistoryId = medicalHistoryId;
+
     }
     @Override
     public String toString() {
